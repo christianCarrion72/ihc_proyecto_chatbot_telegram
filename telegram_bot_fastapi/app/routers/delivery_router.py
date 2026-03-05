@@ -4,7 +4,7 @@ from sqlmodel import Session
 from app.core.database import get_session
 from app.services import telegram_service
 from app.services.delivery_service import DeliveryService
-from app.schemas.delivery_schema import DeliveryCreate, DeliveryUpdate, DeliveryResponse
+from app.schemas.delivery_schema import DeliveryCreate, DeliveryUpdate, DeliveryResponse, DeliveryLogin
 
 router = APIRouter(
     prefix="/deliveries",
@@ -53,6 +53,14 @@ def get_delivery(delivery_id: int, db: Session = Depends(get_session)):
 @router.post("/", response_model=DeliveryResponse, status_code=201)
 def create_delivery(delivery: DeliveryCreate, db: Session = Depends(get_session)):
     return DeliveryService.create(db, delivery)
+
+
+@router.post("/login", response_model=DeliveryResponse)
+def login_delivery(credentials: DeliveryLogin, db: Session = Depends(get_session)):
+    delivery = DeliveryService.login(db, credentials.email, credentials.password)
+    if not delivery:
+        raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+    return delivery
 
 
 @router.put("/{delivery_id}", response_model=DeliveryResponse)

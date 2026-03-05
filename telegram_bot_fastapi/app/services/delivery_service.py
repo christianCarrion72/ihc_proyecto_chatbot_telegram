@@ -24,6 +24,15 @@ class DeliveryService:
         return db_delivery
 
     @staticmethod
+    def login(db: Session, email: str, password: str):
+        delivery = db.exec(select(Delivery).where(Delivery.email == email)).first()
+        if not delivery:
+            return None
+        if delivery.password != password:
+            return None
+        return delivery
+
+    @staticmethod
     def update(db: Session, delivery_id: int, delivery: DeliveryUpdate):
         db_delivery = db.get(Delivery, delivery_id)
         if not db_delivery:

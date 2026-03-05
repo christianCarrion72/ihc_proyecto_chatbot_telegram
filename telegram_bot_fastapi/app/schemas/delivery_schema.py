@@ -11,6 +11,10 @@ class DeliveryBase(BaseModel):
 class DeliveryCreate(DeliveryBase):
     password: str
 
+class DeliveryLogin(BaseModel):
+    email: EmailStr
+    password: str
+
 
 class DeliveryUpdate(BaseModel):
     nombre: str | None = None
