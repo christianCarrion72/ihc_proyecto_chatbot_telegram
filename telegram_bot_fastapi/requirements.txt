@@ -1,0 +1,9 @@
+fastapi # Framework web moderno y rápido para construir APIs con Python 3.7+
+uvicorn # Servidor ASGI para aplicaciones FastAPI
+sqlmodel # ORM basado en SQLAlchemy y Pydantic
+pydantic>=2.0 # Validación de datos y configuración
+httpx # Cliente HTTP para hacer solicitudes
+python-dotenv # Para cargar variables de entorno desde un archivo .env
+psycopg2-binary # Driver para PostgreSQL
+alembic # Para migraciones de base de datos
+pydantic[email]
