@@ -9,6 +9,8 @@ from app.routers.plato_router import router as plato_router
 from app.routers.delivery_router import router as delivery_router
 from app.routers.pedido_router import router as pedido_router
 from app.routers.detalle_router import router as detalle_router
+from app.routers.bot_router import router as bot_router
+
 
 
 
@@ -26,6 +28,7 @@ configuracion_cors(app)
 def root():
     return {"message": "Hello World"}
 
+app.include_router(bot_router)
 app.include_router(categoria_router)
 app.include_router(delivery_router)
 app.include_router(pedido_router)
