@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:restaurant_delivery_app/shared/widgets/auth_text_field.dart';
 import 'package:restaurant_delivery_app/shared/widgets/primary_button.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../main.dart';
+import '../../services/auth_service.dart';
+import '../../../home/presentation/pages/home_page.dart';
+import '../../domain/models/delivery.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -18,6 +19,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _authService = AuthService();
 
   bool _isLoading = false;
 
@@ -35,23 +37,20 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      const baseUrl = 'http://127.0.0.1:8000'; 
-      final url = Uri.parse('$baseUrl/deliveries/login');
+      final response = await _authService.login(email, password);
+      final statusCode = response.statusCode;
 
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
-      );
+      if (statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final delivery = Delivery.fromJson(data);
 
-      if (response.statusCode == 200) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const InitialScreen()),
+          MaterialPageRoute(builder: (_) => HomePage(delivery: delivery)),
         );
-      } else if (response.statusCode == 401) {
+      } else if (statusCode == 401) {
         _showSnackBar('Credenciales incorrectas');
       } else {
-        _showSnackBar('Error al iniciar sesión (${response.statusCode})');
+        _showSnackBar('Error al iniciar sesión ($statusCode)');
       }
     } catch (e) {
       _showSnackBar('No se pudo conectar con el servidor');
@@ -65,9 +64,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -85,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 const SizedBox(height: 40),
                 const Text(
-                  'COME YA',
+                  'DELI GO',
                   style: TextStyle(
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
@@ -95,11 +94,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Tu comida, al instante',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                  ),
+                  'Tu comida en casa',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
                 const SizedBox(height: 48),
                 AuthTextField(
