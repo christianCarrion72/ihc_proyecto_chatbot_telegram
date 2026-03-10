@@ -268,6 +268,12 @@
     flex-shrink: 0;
   }
 
+  .resumen-item-controles {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
   .resumen-item-right button {
     width: 28px;
     height: 28px;
@@ -478,7 +484,7 @@
             class="categoria-chip"
             type="button"
             [class.categoria-chip--active]="selectedCategoriaId === null"
-            (click)="selectedCategoriaId = null">
+            (click)="seleccionarCategoria(null)">
             Todos
           </button>
           <button
@@ -486,7 +492,7 @@
             class="categoria-chip"
             type="button"
             [class.categoria-chip--active]="selectedCategoriaId === categoria.id"
-            (click)="selectedCategoriaId = categoria.id">
+            (click)="seleccionarCategoria(categoria.id)">
             {{ categoria.nombre }}
           </button>
         </div>
@@ -522,10 +528,14 @@
           </div>
 
           <div class="resumen-item-right">
-            <button type="button" (click)="incrementar(plato.id)">+</button>
-            <span class="resumen-item-cantidad">{{ getCantidad(plato.id) }}</span>
-            <button type="button" (click)="decrementar(plato.id)">-</button>
-            <div class="resumen-item-total">Bs {{ plato.precio_venta * getCantidad(plato.id) }}</div>
+            <div class="resumen-item-controles">
+              <button type="button" (click)="incrementar(plato.id)">+</button>
+              <span class="resumen-item-cantidad">{{ getCantidad(plato.id) }}</span>
+              <button type="button" (click)="decrementar(plato.id)">-</button>
+            </div>
+            <div class="resumen-item-total">
+              Bs {{ plato.precio_venta * getCantidad(plato.id) }}
+            </div>
           </div>
 
         </div>
@@ -545,7 +555,7 @@
             class="categoria-chip"
             type="button"
             [class.categoria-chip--active]="selectedCategoriaId === null"
-            (click)="selectedCategoriaId = null">
+            (click)="seleccionarCategoria(null)">
             Todos
           </button>
           <button
@@ -553,7 +563,7 @@
             class="categoria-chip"
             type="button"
             [class.categoria-chip--active]="selectedCategoriaId === categoria.id"
-            (click)="selectedCategoriaId = categoria.id">
+            (click)="seleccionarCategoria(categoria.id)">
             {{ categoria.nombre }}
           </button>
         </div>
@@ -571,7 +581,15 @@
       <div class="qr-header">Pago en QR</div>
       <div class="qr-container">
         <img [src]="qrUrl" alt="Código QR de pago" class="qr-imagen" />
-        <div class="qr-total">Total {{ ultimoTotalPedido }} bs</div>
+        <div class="qr-total">
+          Total pedido: {{ totalBasePedido | number:'1.0-2' }} bs
+        </div>
+        <div class="qr-total">
+          Delivery: {{ precioDelivery | number:'1.0-2' }} bs
+        </div>
+        <div class="qr-total">
+          Total a pagar: {{ ultimoTotalPedido | number:'1.0-2' }} bs
+        </div>
       </div>
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>
@@ -588,7 +606,7 @@
             class="categoria-chip"
             type="button"
             [class.categoria-chip--active]="selectedCategoriaId === null"
-            (click)="selectedCategoriaId = null"
+            (click)="seleccionarCategoria(null)"
           >
             Todos
           </button>
@@ -597,7 +615,7 @@
             class="categoria-chip"
             type="button"
             [class.categoria-chip--active]="selectedCategoriaId === categoria.id"
-            (click)="selectedCategoriaId = categoria.id"
+            (click)="seleccionarCategoria(categoria.id)"
           >
             {{ categoria.nombre }}
           </button>

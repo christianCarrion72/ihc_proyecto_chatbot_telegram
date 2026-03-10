@@ -30,6 +30,10 @@ export class AppComponent implements OnInit {
   viendoResumen = false;
   viendoQr = false;
   ultimoTotalPedido = 0;
+  totalBasePedido = 0;
+  precioDelivery = 0;
+  ubicacionEntrega: string | null = null;
+  deliveryId: number | null = null;
   cargandoPedido = false;
   loadingPlatos = false;
   loadingCategorias = false;
@@ -47,6 +51,64 @@ export class AppComponent implements OnInit {
       this.chatId = params.get('chat_id');
       this.nombreUsuario = params.get('nombre_usuario');
       console.log('chat_id:', this.chatId, 'nombre_usuario:', this.nombreUsuario);
+
+      const resetParam = params.get('reset');
+      if (resetParam === '1') {
+        this.selectedCategoriaId = null;
+        this.cantidades = {};
+        this.observaciones = {};
+        this.viendoResumen = false;
+        this.viendoQr = false;
+        this.totalBasePedido = 0;
+        this.ultimoTotalPedido = 0;
+        this.precioDelivery = 0;
+        this.ubicacionEntrega = null;
+        this.deliveryId = null;
+        try {
+          window.localStorage.removeItem('cantidadesDraft');
+        } catch (e) {
+          console.error('Error limpiando cantidades desde localStorage en reset', e);
+        }
+        return;
+      }
+
+      const tarifaParam = params.get('tarifa');
+      const totalParam = params.get('total');
+      const ubicacionParam = params.get('ubicacion');
+      const deliveryIdParam = params.get('delivery_id');
+
+      if (tarifaParam && totalParam && ubicacionParam && deliveryIdParam) {
+        const tarifa = Number(tarifaParam);
+        const totalBase = Number(totalParam);
+        const deliveryId = Number(deliveryIdParam);
+
+        if (!Number.isNaN(tarifa) && !Number.isNaN(totalBase) && !Number.isNaN(deliveryId)) {
+          this.precioDelivery = tarifa;
+          this.totalBasePedido = totalBase;
+          this.ubicacionEntrega = ubicacionParam;
+          this.deliveryId = deliveryId;
+          this.ultimoTotalPedido = totalBase + tarifa;
+          this.viendoResumen = false;
+          this.viendoQr = true;
+        }
+      }
+
+      try {
+        const rawCantidades = window.localStorage.getItem('cantidadesDraft');
+        if (rawCantidades) {
+          const parsed = JSON.parse(rawCantidades) as { [key: string]: number };
+          const restauradas: { [platoId: number]: number } = {};
+          Object.keys(parsed).forEach((k) => {
+            const id = Number(k);
+            if (!Number.isNaN(id)) {
+              restauradas[id] = parsed[k] ?? 0;
+            }
+          });
+          this.cantidades = restauradas;
+        }
+      } catch (e) {
+        console.error('Error restaurando cantidades desde localStorage', e);
+      }
     });
 
     this.loadCategorias();
@@ -96,13 +158,29 @@ export class AppComponent implements OnInit {
   }
 
   verOrden(): void {
+    this.selectedCategoriaId = null;
     this.viendoResumen = true;
   }
 
   confirmar(): void {
-    this.ultimoTotalPedido = this.totalPedido;
-    this.viendoResumen = false;
-    this.viendoQr = true;
+    this.totalBasePedido = this.totalPedido;
+    if (!this.chatId || !this.nombreUsuario) {
+      return;
+    }
+
+    try {
+      window.localStorage.setItem('cantidadesDraft', JSON.stringify(this.cantidades));
+    } catch (e) {
+      console.error('Error guardando cantidades en localStorage', e);
+    }
+
+    this.router.navigate(['/ubicacion'], {
+      queryParams: {
+        chat_id: this.chatId,
+        nombre_usuario: this.nombreUsuario,
+        total: this.totalBasePedido,
+      },
+    });
   }
 
   private construirDetalles(): DetalleParaPedidoPayload[] {
@@ -125,13 +203,13 @@ export class AppComponent implements OnInit {
 
   private construirPayload(detalles: DetalleParaPedidoPayload[]): PedidoCompletoPayload {
     return {
-      total: this.totalPedido,
+      total: this.ultimoTotalPedido || this.totalPedido,
       estado: 'en local',
-      ubicacion_entrega: 'por confirmar',
-      precio_delivery: 0,
+      ubicacion_entrega: this.ubicacionEntrega ?? 'por confirmar',
+      precio_delivery: this.precioDelivery,
       chat_id: this.chatId as string,
       nombre_usuario: this.nombreUsuario as string,
-      delivery_id: null,
+      delivery_id: this.deliveryId,
       detalles,
     };
   }
@@ -140,6 +218,7 @@ export class AppComponent implements OnInit {
     const detalles = this.construirDetalles();
 
     if (!detalles.length || !this.chatId || !this.nombreUsuario) {
+      console.error('No hay detalles de pedido o faltan datos de usuario');
       return;
     }
 
@@ -153,6 +232,11 @@ export class AppComponent implements OnInit {
         next: (pedido) => {
           this.cargandoPedido = false;
           this.ultimoTotalPedido = pedido.total;
+          try {
+            window.localStorage.removeItem('cantidadesDraft');
+          } catch (e) {
+            console.error('Error limpiando cantidadesDraft', e);
+          }
           this.router.navigate(['/verificacion'], {
             queryParamsHandling: 'preserve',
           });
