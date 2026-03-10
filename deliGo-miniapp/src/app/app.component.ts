@@ -1,12 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/enviroment';
-import { Categoria, Plato } from './interface/pedidos.interface';
-
-
-
+import {
+  Categoria,
+  Plato,
+  DetalleParaPedidoPayload,
+  PedidoCompletoPayload,
+  PedidoResponse,
+} from './interface/pedidos.interface';
+import { retry } from 'rxjs';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -21,10 +25,22 @@ export class AppComponent implements OnInit {
   platos: Plato[] = [];
   categorias: Categoria[] = [];
   selectedCategoriaId: number | null = null;
-  cantidades: { [platoId: number]: number} = {};
+  cantidades: { [platoId: number]: number } = {};
+  observaciones: { [platoId: number]: string } = {};
   viendoResumen = false;
+  viendoQr = false;
+  ultimoTotalPedido = 0;
+  cargandoPedido = false;
+  loadingPlatos = false;
+  loadingCategorias = false;
+  errorPlatos = '';
+  errorCategorias = '';
 
-  constructor(private route: ActivatedRoute, private http: HttpClient) {}
+  constructor(
+    private route: ActivatedRoute,
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((params) => {
@@ -70,17 +86,82 @@ export class AppComponent implements OnInit {
     );
   }
 
+  get qrUrl(): string {
+    const data = encodeURIComponent(
+      `DeliGo|monto=${this.ultimoTotalPedido}|chat=${this.chatId ?? ''}|nombre=${
+        this.nombreUsuario ?? ''
+      }`
+    );
+    return `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${data}`;
+  }
+
   verOrden(): void {
     this.viendoResumen = true;
   }
 
   confirmar(): void {
-    console.log('Pedido confirmado', {
-      chatId: this.chatId,
-      nombreUsuario: this.nombreUsuario,
-      cantidades: this.cantidades,
-    });
+    this.ultimoTotalPedido = this.totalPedido;
     this.viendoResumen = false;
+    this.viendoQr = true;
+  }
+
+  private construirDetalles(): DetalleParaPedidoPayload[] {
+    const detalles: DetalleParaPedidoPayload[] = this.resumenPlatos
+      .map((plato) => {
+        const cantidad = this.getCantidad(plato.id);
+        if (cantidad <= 0) {
+          return null;
+        }
+        return {
+          cantidad,
+          observacion: this.observaciones[plato.id] ?? '',
+          plato_id: plato.id,
+        } as DetalleParaPedidoPayload;
+      })
+      .filter((d): d is DetalleParaPedidoPayload => d !== null);
+
+    return detalles;
+  }
+
+  private construirPayload(detalles: DetalleParaPedidoPayload[]): PedidoCompletoPayload {
+    return {
+      total: this.totalPedido,
+      estado: 'en local',
+      ubicacion_entrega: 'por confirmar',
+      precio_delivery: 0,
+      chat_id: this.chatId as string,
+      nombre_usuario: this.nombreUsuario as string,
+      delivery_id: null,
+      detalles,
+    };
+  }
+
+  irAVerificacion(): void {
+    const detalles = this.construirDetalles();
+
+    if (!detalles.length || !this.chatId || !this.nombreUsuario) {
+      return;
+    }
+
+    const payload: PedidoCompletoPayload = this.construirPayload(detalles);
+
+    this.cargandoPedido = true;
+
+    this.http
+      .post<PedidoResponse>(`${environment.backendUrl}/pedidos/completo`, payload)
+      .subscribe({
+        next: (pedido) => {
+          this.cargandoPedido = false;
+          this.ultimoTotalPedido = pedido.total;
+          this.router.navigate(['/verificacion'], {
+            queryParamsHandling: 'preserve',
+          });
+        },
+        error: (err) => {
+          this.cargandoPedido = false;
+          console.error('Error creando pedido completo', err);
+        },
+      });
   }
 
   seleccionarCategoria(id: number | null): void {
@@ -88,23 +169,46 @@ export class AppComponent implements OnInit {
     if (this.viendoResumen) {
       this.viendoResumen = false;
     }
+    if (this.viendoQr) {
+      this.viendoQr = false;
+    }
   }
 
   private loadPlatos(): void {
+    this.loadingPlatos = true;
+    this.errorPlatos = '';
     this.http
       .get<Plato[]>(`${environment.backendUrl}/platos/`)
+      .pipe(retry(2))
       .subscribe({
-        next: (data) => (this.platos = data),
-        error: (err) => console.error('Error cargando platos', err),
+        next: (data) => {
+          this.platos = data;
+          this.loadingPlatos = false;
+        },
+        error: (err) => {
+          this.loadingPlatos = false;
+          this.errorPlatos = 'No se pudieron cargar los platos';
+          console.error('Error cargando platos', err);
+        },
       });
   }
 
   private loadCategorias(): void {
+    this.loadingCategorias = true;
+    this.errorCategorias = '';
     this.http
       .get<Categoria[]>(`${environment.backendUrl}/categorias/`)
+      .pipe(retry(2))
       .subscribe({
-        next: (data) => (this.categorias = data),
-        error: (err) => console.error('Error cargando categorías', err),
+        next: (data) => {
+          this.categorias = data;
+          this.loadingCategorias = false;
+        },
+        error: (err) => {
+          this.loadingCategorias = false;
+          this.errorCategorias = 'No se pudieron cargar las categorías';
+          console.error('Error cargando categorías', err);
+        },
       });
   }
 }
