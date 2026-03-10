@@ -7,7 +7,6 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/enviroment';
-import { PedidoResponse } from './interface/pedidos.interface';
 
 declare const L: any;
 
@@ -116,6 +115,8 @@ export class MapaUbicacionComponent implements AfterViewInit, OnDestroy {
   private map: any;
   private marker: any;
   private chatId: string | null = null;
+  private nombreUsuario: string | null = null;
+  private totalBase = 0;
   cargando = false;
 
   constructor(
@@ -127,6 +128,14 @@ export class MapaUbicacionComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.route.queryParamMap.subscribe((params) => {
       this.chatId = params.get('chat_id');
+      this.nombreUsuario = params.get('nombre_usuario');
+      const totalParam = params.get('total');
+      if (totalParam) {
+        const total = Number(totalParam);
+        if (!Number.isNaN(total)) {
+          this.totalBase = total;
+        }
+      }
     });
 
     const initialLat = -17.783855;
@@ -171,7 +180,18 @@ export class MapaUbicacionComponent implements AfterViewInit, OnDestroy {
   }
 
   confirmarUbicacion(): void {
-    if (!this.marker || !this.chatId) {
+    if (!this.chatId || !this.nombreUsuario) {
+      return;
+    }
+
+    if (!this.marker && this.map) {
+      const center = this.map.getCenter();
+      this.marker = L.marker([center.lat, center.lng], { draggable: true }).addTo(
+        this.map
+      );
+    }
+
+    if (!this.marker) {
       return;
     }
 
@@ -180,21 +200,40 @@ export class MapaUbicacionComponent implements AfterViewInit, OnDestroy {
 
     this.cargando = true;
 
-    this.http
-      .post<PedidoResponse>(`${environment.backendUrl}/pedidos/ubicacion`, {
-        chat_id: this.chatId,
-        ubicacion_entrega,
-      })
-      .subscribe({
-        next: () => {
-          this.cargando = false;
-          this.router.navigate(['/']); // volver al inicio o donde prefieras
-        },
-        error: (err) => {
-          this.cargando = false;
-          console.error('Error actualizando ubicación de entrega', err);
-        },
-      });
+    const tarifaUrl = `${environment.backendUrl}/deliveries/calcular-tarifa/${encodeURIComponent(
+      ubicacion_entrega
+    )}`;
+
+    this.http.get<{ tarifa: number }>(tarifaUrl).subscribe({
+      next: (tarifaResp) => {
+        const tarifa = tarifaResp.tarifa;
+        const masCercanoUrl = `${environment.backendUrl}/deliveries/mas-cercano`;
+
+        this.http.get<{ id: number }>(masCercanoUrl).subscribe({
+          next: (delivery) => {
+            this.cargando = false;
+            this.router.navigate(['/'], {
+              queryParams: {
+                chat_id: this.chatId,
+                nombre_usuario: this.nombreUsuario,
+                ubicacion: ubicacion_entrega,
+                tarifa,
+                delivery_id: delivery.id,
+                total: this.totalBase,
+              },
+            });
+          },
+          error: (err) => {
+            this.cargando = false;
+            console.error('Error obteniendo delivery más cercano', err);
+          },
+        });
+      },
+      error: (err) => {
+        this.cargando = false;
+        console.error('Error calculando tarifa de delivery', err);
+      },
+    });
   }
 
   ngOnDestroy(): void {
@@ -203,4 +242,3 @@ export class MapaUbicacionComponent implements AfterViewInit, OnDestroy {
     }
   }
 }
-

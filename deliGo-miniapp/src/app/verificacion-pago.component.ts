@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-verificacion-pago',
@@ -26,9 +26,9 @@ import { Router } from '@angular/router';
             <button
               type="button"
               class="verificacion-button"
-              (click)="mandarUbicacion()"
+              (click)="hacerOtroPedido()"
             >
-              Mandar Ubicacion
+              Hacer otro pedido
             </button>
           </div>
         </div>
@@ -135,11 +135,15 @@ import { Router } from '@angular/router';
   ],
 })
 export class VerificacionPagoComponent {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private route: ActivatedRoute) {}
 
-  mandarUbicacion(): void {
-    this.router.navigate(['/ubicacion'], {
-      queryParamsHandling: 'preserve',
+  hacerOtroPedido(): void {
+    const currentParams = this.route.snapshot.queryParams;
+    this.router.navigate(['/'], {
+      queryParams: {
+        ...currentParams,
+        reset: '1',
+      },
     });
   }
 }
