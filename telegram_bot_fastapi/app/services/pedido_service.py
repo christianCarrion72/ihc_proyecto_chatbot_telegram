@@ -1,6 +1,11 @@
 from sqlmodel import Session, select, desc
 from app.models.modelos import Pedido, Detalle, Configuracion
-from app.schemas.pedido_schema import PedidoCreate, PedidoUpdate, PedidoCompletoCreate
+from app.schemas.pedido_schema import (
+    PedidoCreate,
+    PedidoUpdate,
+    PedidoCompletoCreate,
+    PedidoUbicacionUpdate,
+)
 from app.services import telegram_service
 
 
@@ -143,3 +148,20 @@ class PedidoService:
             return pedido.ubicacion_entrega
         
         return None
+
+    @staticmethod
+    async def actualizar_ubicacion_entrega(
+        db: Session, data: PedidoUbicacionUpdate
+    ):
+        pedido = PedidoService.get_ultimo_pedido(db, data.chat_id)
+        if not pedido:
+            return None
+
+        pedido.ubicacion_entrega = data.ubicacion_entrega
+        db.add(pedido)
+        db.commit()
+        db.refresh(pedido)
+
+        await telegram_service.estado_pedido(pedido)
+
+        return pedido

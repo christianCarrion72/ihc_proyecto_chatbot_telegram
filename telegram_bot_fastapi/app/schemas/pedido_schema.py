@@ -42,6 +42,11 @@ class PedidoUpdate(BaseModel):
     delivery_id: int | None = None
 
 
+class PedidoUbicacionUpdate(BaseModel):
+    chat_id: str
+    ubicacion_entrega: str
+
+
 class PedidoResponse(PedidoBase):
     id: int
     delivery_id: int | None

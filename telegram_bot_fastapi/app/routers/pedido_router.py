@@ -2,7 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from app.core.database import get_session
 from app.services.pedido_service import PedidoService
-from app.schemas.pedido_schema import PedidoCreate, PedidoUpdate, PedidoResponse, PedidoCompletoCreate
+from app.schemas.pedido_schema import (
+    PedidoCreate,
+    PedidoUpdate,
+    PedidoResponse,
+    PedidoCompletoCreate,
+    PedidoUbicacionUpdate,
+)
 
 router = APIRouter(
     prefix="/pedidos",
@@ -65,4 +71,14 @@ async def crear_pedido_completo(pedido_completo: PedidoCompletoCreate, db: Sessi
         return await PedidoService.crear_pedido_completo(db, pedido_completo)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error al crear el pedido completo: {str(e)}")
+
+
+@router.post("/ubicacion", response_model=PedidoResponse)
+async def actualizar_ubicacion_pedido(
+    data: PedidoUbicacionUpdate, db: Session = Depends(get_session)
+):
+    pedido = await PedidoService.actualizar_ubicacion_entrega(db, data)
+    if not pedido:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    return pedido
 
