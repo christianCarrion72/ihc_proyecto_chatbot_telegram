@@ -75,9 +75,9 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        color: AppColors.secundary,
+        color: AppColors.primary,
         child: SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
                 const Text(
                   'DELI GO',
                   style: TextStyle(
-                    fontSize: 36,
+                    fontSize: 40,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     letterSpacing: 2,
@@ -95,13 +95,14 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 8),
                 const Text(
                   'Tu comida en casa',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
+                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
                 const SizedBox(height: 48),
+                const SizedBox(height: 160),
                 AuthTextField(
                   controller: _emailController,
                   hintText: 'Correo electronico',
-                  icon: Icons.lock_outline,
+                  icon: Icons.person_outline,
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 20),
@@ -117,6 +118,7 @@ class _LoginPageState extends State<LoginPage> {
                   isLoading: _isLoading,
                   onPressed: _login,
                 ),
+                const SizedBox(height: 24),
               ],
             ),
           ),
