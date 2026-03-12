@@ -25,11 +25,47 @@ class DeliveryService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Error actualizando disponibilidad (${response.statusCode})');
+      throw Exception(
+        'Error actualizando disponibilidad (${response.statusCode})',
+      );
+    }
+
+    final Map<String, dynamic> data = jsonDecode(response.body);
+    return Delivery.fromJson(data);
+  }
+
+  Future<Delivery> actualizarPerfil({
+    required int id,
+    required String nombre,
+    String? password,
+    String? ubicacion,
+  }) async {
+    final baseUrl = Env.baseUrl;
+    if (baseUrl.isEmpty) {
+      throw Exception('Env.baseUrl no está configurada');
+    }
+
+    final url = Uri.parse('$baseUrl/deliveries/$id');
+
+    final Map<String, dynamic> body = {'nombre': nombre};
+    if (password != null && password.isNotEmpty) {
+      body['password'] = password;
+    }
+    if (ubicacion != null && ubicacion.isNotEmpty) {
+      body['ubicacion'] = ubicacion;
+    }
+
+    final response = await _client.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Error actualizando perfil (${response.statusCode})');
     }
 
     final Map<String, dynamic> data = jsonDecode(response.body);
     return Delivery.fromJson(data);
   }
 }
-
