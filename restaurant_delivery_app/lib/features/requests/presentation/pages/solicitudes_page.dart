@@ -6,6 +6,8 @@ import '../../../auth/domain/models/delivery.dart';
 import '../../domain/models/pedido.dart';
 import '../../services/pedido_service.dart';
 import 'pedido_detalle_page.dart';
+import 'viaje_iniciado_page.dart';
+import 'entrega_completa_page.dart';
 
 class SolicitudesPage extends StatefulWidget {
   final Delivery delivery;
@@ -25,6 +27,31 @@ class _SolicitudesPageState extends State<SolicitudesPage> {
   final PedidoService _pedidoService = PedidoService();
   late Future<List<Pedido>> _futurePedidos;
   int? _expandedPedidoId;
+
+  Future<void> _handleVerPedido(Pedido pedido) async {
+    final estado = pedido.estado.toLowerCase();
+
+    final page = estado == 'en camino'
+        ? ViajeIniciadoPage(
+            pedido: pedido,
+            onChangeTab: widget.onChangeTab,
+          )
+        : estado == 'en destino'
+            ? EntregaCompletaPage(
+                pedido: pedido,
+                onChangeTab: widget.onChangeTab,
+              )
+            : PedidoDetallePage(
+                pedido: pedido,
+                onChangeTab: widget.onChangeTab,
+              );
+
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+
+    setState(() {
+      _futurePedidos = _pedidoService.obtenerPorDelivery(widget.delivery.id);
+    });
+  }
 
   @override
   void initState() {
@@ -105,14 +132,7 @@ class _SolicitudesPageState extends State<SolicitudesPage> {
                         });
                       },
                       onVerPedido: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => PedidoDetallePage(
-                              pedido: pedido,
-                              onChangeTab: widget.onChangeTab,
-                            ),
-                          ),
-                        );
+                        _handleVerPedido(pedido);
                       },
                     );
                   }),
