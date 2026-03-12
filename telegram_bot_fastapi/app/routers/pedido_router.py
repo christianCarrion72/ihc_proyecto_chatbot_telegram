@@ -16,13 +16,19 @@ router = APIRouter(
     tags=["Pedidos"]
 )
 
+_direccion_cache: dict[int, str] = {}
+
 
 @router.get("/", response_model=list[PedidoResponse])
 async def get_pedidos(db: Session = Depends(get_session)):
     pedidos = PedidoService.get_all(db)
     responses: list[PedidoResponse] = []
     for p in pedidos:
-        direccion = await reverse_geocode(p.ubicacion_entrega)
+        direccion = _direccion_cache.get(p.id)
+        if direccion is None:
+            direccion = await reverse_geocode(p.ubicacion_entrega)
+            if direccion:
+                _direccion_cache[p.id] = direccion
         responses.append(
             PedidoResponse(
                 id=p.id,
@@ -46,7 +52,11 @@ async def get_pedidos_por_chat(chat_id: str, db: Session = Depends(get_session))
     pedidos = PedidoService.get_by_chat_id(db, chat_id)
     responses: list[PedidoResponse] = []
     for p in pedidos:
-        direccion = await reverse_geocode(p.ubicacion_entrega)
+        direccion = _direccion_cache.get(p.id)
+        if direccion is None:
+            direccion = await reverse_geocode(p.ubicacion_entrega)
+            if direccion:
+                _direccion_cache[p.id] = direccion
         responses.append(
             PedidoResponse(
                 id=p.id,
@@ -70,7 +80,11 @@ async def get_pedidos_por_delivery(delivery_id: int, db: Session = Depends(get_s
     pedidos = PedidoService.get_by_delivery(db, delivery_id)
     responses: list[PedidoResponse] = []
     for p in pedidos:
-        direccion = await reverse_geocode(p.ubicacion_entrega)
+        direccion = _direccion_cache.get(p.id)
+        if direccion is None:
+            direccion = await reverse_geocode(p.ubicacion_entrega)
+            if direccion:
+                _direccion_cache[p.id] = direccion
         responses.append(
             PedidoResponse(
                 id=p.id,
@@ -94,7 +108,11 @@ async def get_pedidos_por_estado(estado: str, db: Session = Depends(get_session)
     pedidos = PedidoService.get_by_estado(db, estado)
     responses: list[PedidoResponse] = []
     for p in pedidos:
-        direccion = await reverse_geocode(p.ubicacion_entrega)
+        direccion = _direccion_cache.get(p.id)
+        if direccion is None:
+            direccion = await reverse_geocode(p.ubicacion_entrega)
+            if direccion:
+                _direccion_cache[p.id] = direccion
         responses.append(
             PedidoResponse(
                 id=p.id,
@@ -118,7 +136,11 @@ async def get_pedido(pedido_id: int, db: Session = Depends(get_session)):
     pedido = PedidoService.get_by_id(db, pedido_id)
     if not pedido:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
-    direccion = await reverse_geocode(pedido.ubicacion_entrega)
+    direccion = _direccion_cache.get(pedido.id)
+    if direccion is None:
+        direccion = await reverse_geocode(pedido.ubicacion_entrega)
+        if direccion:
+            _direccion_cache[pedido.id] = direccion
     return PedidoResponse(
         id=pedido.id,
         total=pedido.total,
