@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from app.core.database import get_session
 from app.services.pedido_service import PedidoService
+from app.services.geocoding_service import reverse_geocode
 from app.schemas.pedido_schema import (
     PedidoCreate,
     PedidoUpdate,
@@ -17,31 +18,120 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[PedidoResponse])
-def get_pedidos(db: Session = Depends(get_session)):
-    return PedidoService.get_all(db)
+async def get_pedidos(db: Session = Depends(get_session)):
+    pedidos = PedidoService.get_all(db)
+    responses: list[PedidoResponse] = []
+    for p in pedidos:
+        direccion = await reverse_geocode(p.ubicacion_entrega)
+        responses.append(
+            PedidoResponse(
+                id=p.id,
+                total=p.total,
+                estado=p.estado,
+                ubicacion_entrega=p.ubicacion_entrega,
+                precio_delivery=p.precio_delivery,
+                chat_id=p.chat_id,
+                nombre_usuario=p.nombre_usuario,
+                delivery_id=p.delivery_id,
+                created_at=p.created_at,
+                updated_at=p.updated_at,
+                direccion_entrega=direccion,
+            )
+        )
+    return responses
 
 
 @router.get("/chat/{chat_id}", response_model=list[PedidoResponse])
-def get_pedidos_por_chat(chat_id: str, db: Session = Depends(get_session)):
-    return PedidoService.get_by_chat_id(db, chat_id)
+async def get_pedidos_por_chat(chat_id: str, db: Session = Depends(get_session)):
+    pedidos = PedidoService.get_by_chat_id(db, chat_id)
+    responses: list[PedidoResponse] = []
+    for p in pedidos:
+        direccion = await reverse_geocode(p.ubicacion_entrega)
+        responses.append(
+            PedidoResponse(
+                id=p.id,
+                total=p.total,
+                estado=p.estado,
+                ubicacion_entrega=p.ubicacion_entrega,
+                precio_delivery=p.precio_delivery,
+                chat_id=p.chat_id,
+                nombre_usuario=p.nombre_usuario,
+                delivery_id=p.delivery_id,
+                created_at=p.created_at,
+                updated_at=p.updated_at,
+                direccion_entrega=direccion,
+            )
+        )
+    return responses
 
 
 @router.get("/delivery/{delivery_id}", response_model=list[PedidoResponse])
-def get_pedidos_por_delivery(delivery_id: int, db: Session = Depends(get_session)):
-    return PedidoService.get_by_delivery(db, delivery_id)
+async def get_pedidos_por_delivery(delivery_id: int, db: Session = Depends(get_session)):
+    pedidos = PedidoService.get_by_delivery(db, delivery_id)
+    responses: list[PedidoResponse] = []
+    for p in pedidos:
+        direccion = await reverse_geocode(p.ubicacion_entrega)
+        responses.append(
+            PedidoResponse(
+                id=p.id,
+                total=p.total,
+                estado=p.estado,
+                ubicacion_entrega=p.ubicacion_entrega,
+                precio_delivery=p.precio_delivery,
+                chat_id=p.chat_id,
+                nombre_usuario=p.nombre_usuario,
+                delivery_id=p.delivery_id,
+                created_at=p.created_at,
+                updated_at=p.updated_at,
+                direccion_entrega=direccion,
+            )
+        )
+    return responses
 
 
 @router.get("/estado/{estado}", response_model=list[PedidoResponse])
-def get_pedidos_por_estado(estado: str, db: Session = Depends(get_session)):
-    return PedidoService.get_by_estado(db, estado)
+async def get_pedidos_por_estado(estado: str, db: Session = Depends(get_session)):
+    pedidos = PedidoService.get_by_estado(db, estado)
+    responses: list[PedidoResponse] = []
+    for p in pedidos:
+        direccion = await reverse_geocode(p.ubicacion_entrega)
+        responses.append(
+            PedidoResponse(
+                id=p.id,
+                total=p.total,
+                estado=p.estado,
+                ubicacion_entrega=p.ubicacion_entrega,
+                precio_delivery=p.precio_delivery,
+                chat_id=p.chat_id,
+                nombre_usuario=p.nombre_usuario,
+                delivery_id=p.delivery_id,
+                created_at=p.created_at,
+                updated_at=p.updated_at,
+                direccion_entrega=direccion,
+            )
+        )
+    return responses
 
 
 @router.get("/{pedido_id}", response_model=PedidoResponse)
-def get_pedido(pedido_id: int, db: Session = Depends(get_session)):
+async def get_pedido(pedido_id: int, db: Session = Depends(get_session)):
     pedido = PedidoService.get_by_id(db, pedido_id)
     if not pedido:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
-    return pedido
+    direccion = await reverse_geocode(pedido.ubicacion_entrega)
+    return PedidoResponse(
+        id=pedido.id,
+        total=pedido.total,
+        estado=pedido.estado,
+        ubicacion_entrega=pedido.ubicacion_entrega,
+        precio_delivery=pedido.precio_delivery,
+        chat_id=pedido.chat_id,
+        nombre_usuario=pedido.nombre_usuario,
+        delivery_id=pedido.delivery_id,
+        created_at=pedido.created_at,
+        updated_at=pedido.updated_at,
+        direccion_entrega=direccion,
+    )
 
 
 @router.post("/", response_model=PedidoResponse, status_code=201)

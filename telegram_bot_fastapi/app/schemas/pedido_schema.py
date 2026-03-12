@@ -52,6 +52,7 @@ class PedidoResponse(PedidoBase):
     delivery_id: int | None
     created_at: datetime
     updated_at: datetime
+    direccion_entrega: str | None = None
 
     class Config:
         from_attributes = True
