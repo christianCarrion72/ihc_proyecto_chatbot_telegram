@@ -6,8 +6,10 @@ import '../../../../shared/widgets/route_map.dart';
 import '../../domain/models/pedido.dart';
 import '../../domain/models/detalle.dart';
 import '../../domain/models/plato.dart';
+import '../../services/pedido_service.dart';
 import '../../services/detalle_service.dart';
 import '../../services/plato_service.dart';
+import 'viaje_iniciado_page.dart';
 
 class PedidoDetallePage extends StatefulWidget {
   final Pedido pedido;
@@ -26,8 +28,10 @@ class PedidoDetallePage extends StatefulWidget {
 class _PedidoDetallePageState extends State<PedidoDetallePage> {
   final DetalleService _detalleService = DetalleService();
   final PlatoService _platoService = PlatoService();
+  final PedidoService _pedidoService = PedidoService();
 
   late Future<List<_DetalleConNombre>> _futureDetalles;
+  bool _iniciandoViaje = false;
 
   @override
   void initState() {
@@ -203,24 +207,83 @@ class _PedidoDetallePageState extends State<PedidoDetallePage> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.secundary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(999),
+                        Builder(
+                          builder: (context) {
+                            final estado = widget.pedido.estado
+                                .toLowerCase()
+                                .trim();
+                            final esEntregado = estado == 'entregado';
+                            final esCancelado = estado == 'cancelado';
+                            final puedeIniciarViaje = estado == 'en local';
+
+                            if (esEntregado || esCancelado) {
+                              return Center(
+                                child: Text(
+                                  esEntregado
+                                      ? 'El pedido fue entregado'
+                                      : 'El pedido fue cancelado',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              );
+                            }
+
+                            if (!puedeIniciarViaje) {
+                              return const SizedBox.shrink();
+                            }
+
+                            return SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: _iniciandoViaje
+                                    ? null
+                                    : () async {
+                                        setState(() {
+                                          _iniciandoViaje = true;
+                                        });
+                                        try {
+                                          final actualizado =
+                                              await _pedidoService
+                                                  .actualizarEstado(
+                                                    widget.pedido.id,
+                                                    'en camino',
+                                                  );
+                                          if (!mounted) return;
+                                          Navigator.of(context).pushReplacement(
+                                            MaterialPageRoute(
+                                              builder: (_) => ViajeIniciadoPage(
+                                                pedido: actualizado,
+                                                onChangeTab: widget.onChangeTab,
+                                              ),
+                                            ),
+                                          );
+                                        } catch (_) {
+                                          if (mounted) {
+                                            setState(() {
+                                              _iniciandoViaje = false;
+                                            });
+                                          }
+                                        }
+                                      },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.secundary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'INICIAR VIAJE',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                            ),
-                            child: const Text(
-                              'INICIAR VIAJE',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                            );
+                          },
                         ),
                       ],
                     ),
