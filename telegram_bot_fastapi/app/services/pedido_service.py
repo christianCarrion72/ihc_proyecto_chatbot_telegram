@@ -5,6 +5,7 @@ from app.schemas.pedido_schema import (
     PedidoUpdate,
     PedidoCompletoCreate,
     PedidoUbicacionUpdate,
+    PedidoCancelacion,
 )
 from app.services import telegram_service
 
@@ -163,5 +164,24 @@ class PedidoService:
         db.refresh(pedido)
 
         await telegram_service.estado_pedido(pedido)
+
+        return pedido
+
+    @staticmethod
+    async def cancelar_pedido(
+        db: Session, pedido_id: int, data: PedidoCancelacion
+    ):
+        pedido = db.get(Pedido, pedido_id)
+        if not pedido:
+            return None
+
+        pedido.estado = "cancelado"
+
+        db.add(pedido)
+        db.commit()
+        db.refresh(pedido)
+
+        await telegram_service.estado_pedido(pedido)
+        await telegram_service.motivo_cancelacion(pedido, data.motivo)
 
         return pedido

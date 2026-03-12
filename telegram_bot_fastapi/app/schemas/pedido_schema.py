@@ -47,6 +47,10 @@ class PedidoUbicacionUpdate(BaseModel):
     ubicacion_entrega: str
 
 
+class PedidoCancelacion(BaseModel):
+    motivo: str
+
+
 class PedidoResponse(PedidoBase):
     id: int
     delivery_id: int | None

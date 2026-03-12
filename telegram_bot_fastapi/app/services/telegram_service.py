@@ -85,3 +85,19 @@ async def enviar_ubicacion(chat_id: int, ubicacion_delibery: str):
                 "longitude": longitud,
             },
         )
+
+
+async def motivo_cancelacion(pedido, motivo: str):
+    mensaje = (
+        "❌ Tu pedido fue *cancelado*.\n"
+        f"Motivo: {motivo}"
+    )
+    async with httpx.AsyncClient() as client:
+        await client.post(
+            f"{BOT}/sendMessage",
+            json={
+                "chat_id": int(pedido.chat_id),
+                "text": mensaje,
+                "parse_mode": "Markdown",
+            },
+        )

@@ -9,6 +9,7 @@ from app.schemas.pedido_schema import (
     PedidoResponse,
     PedidoCompletoCreate,
     PedidoUbicacionUpdate,
+    PedidoCancelacion,
 )
 
 router = APIRouter(
@@ -194,3 +195,14 @@ async def actualizar_ubicacion_pedido(
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
     return pedido
 
+
+@router.post("/{pedido_id}/cancelar", response_model=PedidoResponse)
+async def cancelar_pedido(
+    pedido_id: int,
+    data: PedidoCancelacion,
+    db: Session = Depends(get_session),
+):
+    pedido = await PedidoService.cancelar_pedido(db, pedido_id, data)
+    if not pedido:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    return pedido
