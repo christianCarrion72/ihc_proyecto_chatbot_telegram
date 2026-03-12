@@ -7,6 +7,7 @@ import '../../../../shared/widgets/app_header.dart';
 import '../../../auth/domain/models/delivery.dart';
 import '../../../requests/presentation/pages/solicitudes_page.dart';
 import '../../services/delivery_service.dart';
+import 'profile_page.dart';
 
 class HomePage extends StatefulWidget {
   final Delivery delivery;
@@ -91,10 +92,10 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const AppHeader(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
@@ -105,11 +106,11 @@ class _HomePageState extends State<HomePage> {
                   Text(
                     '¡HOLA, $nombre!',
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -119,14 +120,14 @@ class _HomePageState extends State<HomePage> {
                           const Text(
                             'ESTADO:',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           Text(
                             disponible ? 'DISPONIBLE' : 'NO DISPONIBLE',
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -136,9 +137,9 @@ class _HomePageState extends State<HomePage> {
                         onTap: _cambiandoEstado ? null : _onSwitchTap,
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          width: 64,
-                          height: 28,
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          width: 80,
+                          height: 40,
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
                           decoration: BoxDecoration(
                             color: disponible
                                 ? AppColors.secundary
@@ -153,12 +154,12 @@ class _HomePageState extends State<HomePage> {
                                 children: const [
                                   Icon(
                                     Icons.person,
-                                    size: 16,
+                                    size: 22,
                                     color: Colors.white,
                                   ),
                                   Icon(
                                     Icons.check,
-                                    size: 16,
+                                    size: 22,
                                     color: Colors.white,
                                   ),
                                 ],
@@ -170,8 +171,8 @@ class _HomePageState extends State<HomePage> {
                                     ? Alignment.centerRight
                                     : Alignment.centerLeft,
                                 child: Container(
-                                  width: 22,
-                                  height: 22,
+                                  width: 32,
+                                  height: 32,
                                   decoration: const BoxDecoration(
                                     color: Colors.white,
                                     shape: BoxShape.circle,
@@ -192,7 +193,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
@@ -203,15 +204,15 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           'PEDIDOS HOY',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        SizedBox(height: 12),
                         Text(
                           '7',
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 32,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -222,7 +223,7 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
@@ -233,15 +234,15 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           'GANANCIAS DE HOY',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        SizedBox(height: 12),
                         Text(
                           'Bs 85.00',
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 28,
                             fontWeight: FontWeight.bold,
                             color: Colors.orange,
                           ),
@@ -263,9 +264,17 @@ class _HomePageState extends State<HomePage> {
     final nombre = _delivery.nombre.toUpperCase();
     final disponible = _estadoLocal;
 
-    final Widget body = _currentIndex == 0
-        ? _buildPrincipalContent(nombre, disponible)
-        : SolicitudesPage(delivery: _delivery, onChangeTab: _onNavItemTapped);
+    late final Widget body;
+    if (_currentIndex == 0) {
+      body = _buildPrincipalContent(nombre, disponible);
+    } else if (_currentIndex == 1) {
+      body = SolicitudesPage(
+        delivery: _delivery,
+        onChangeTab: _onNavItemTapped,
+      );
+    } else {
+      body = ProfilePage(delivery: _delivery);
+    }
 
     return Scaffold(
       backgroundColor: AppColors.primary,
@@ -276,6 +285,9 @@ class _HomePageState extends State<HomePage> {
         unselectedItemColor: Colors.grey,
         currentIndex: _currentIndex,
         onTap: _onNavItemTapped,
+        selectedFontSize: 14,
+        unselectedFontSize: 14,
+        iconSize: 28,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),

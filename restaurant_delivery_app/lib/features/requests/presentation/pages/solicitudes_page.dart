@@ -32,19 +32,10 @@ class _SolicitudesPageState extends State<SolicitudesPage> {
     final estado = pedido.estado.toLowerCase();
 
     final page = estado == 'en camino'
-        ? ViajeIniciadoPage(
-            pedido: pedido,
-            onChangeTab: widget.onChangeTab,
-          )
+        ? ViajeIniciadoPage(pedido: pedido, onChangeTab: widget.onChangeTab)
         : estado == 'en destino'
-            ? EntregaCompletaPage(
-                pedido: pedido,
-                onChangeTab: widget.onChangeTab,
-              )
-            : PedidoDetallePage(
-                pedido: pedido,
-                onChangeTab: widget.onChangeTab,
-              );
+        ? EntregaCompletaPage(pedido: pedido, onChangeTab: widget.onChangeTab)
+        : PedidoDetallePage(pedido: pedido, onChangeTab: widget.onChangeTab);
 
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
 
@@ -68,17 +59,17 @@ class _SolicitudesPageState extends State<SolicitudesPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const AppHeader(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             const Text(
               'PEDIDOS ASIGNADOS',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
+                letterSpacing: 1.4,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             FutureBuilder<List<Pedido>>(
               future: _futurePedidos,
               builder: (context, snapshot) {
@@ -171,8 +162,8 @@ class _PedidoCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -183,8 +174,8 @@ class _PedidoCard extends StatelessWidget {
             if (esNuevo) ...[
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
+                  horizontal: 14,
+                  vertical: 6,
                 ),
                 decoration: BoxDecoration(
                   color: AppColors.secundary,
@@ -194,12 +185,12 @@ class _PedidoCard extends StatelessWidget {
                   'Nuevo Pedido Asignado',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
             ],
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,39 +202,39 @@ class _PedidoCard extends StatelessWidget {
                       Text(
                         'Pedido ${_codigoPedido()}',
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         'Cliente: ${pedido.nombreUsuario}',
-                        style: const TextStyle(fontSize: 12),
+                        style: const TextStyle(fontSize: 14),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       Text(
                         'Destino: ${pedido.direccionEntrega ?? pedido.ubicacionEntrega}',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 12),
+                        style: const TextStyle(fontSize: 14),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       Text(
                         'Total: Bs ${pedido.total.toStringAsFixed(2)}',
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
-                const Icon(Icons.fastfood, size: 40, color: Colors.orange),
+                const SizedBox(width: 16),
+                const Icon(Icons.fastfood, size: 48, color: Colors.orange),
               ],
             ),
             if (expandido) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -256,7 +247,7 @@ class _PedidoCard extends StatelessWidget {
                   ),
                   child: const Text(
                     'VER PEDIDO',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
