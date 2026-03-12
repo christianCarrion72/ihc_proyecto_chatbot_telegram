@@ -97,8 +97,9 @@ class _CancelarPedidoPageState extends State<CancelarPedidoPage> {
                           'CANCELAR PEDIDO?',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
+                            letterSpacing: 1.4,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -106,7 +107,7 @@ class _CancelarPedidoPageState extends State<CancelarPedidoPage> {
                           'Pedido ${_codigoPedido()} a ${widget.pedido.nombreUsuario}',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -248,7 +249,7 @@ class _MotivoChip extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: seleccionado ? AppColors.secundary : Colors.white,
           borderRadius: BorderRadius.circular(999),
@@ -260,7 +261,7 @@ class _MotivoChip extends StatelessWidget {
           texto,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: FontWeight.w500,
             color: seleccionado ? Colors.white : Colors.black87,
           ),

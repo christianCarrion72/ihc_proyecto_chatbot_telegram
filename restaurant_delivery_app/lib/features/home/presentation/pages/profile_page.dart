@@ -113,9 +113,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 'PERFIL',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
+                  letterSpacing: 1.4,
                 ),
               ),
               const SizedBox(height: 16),
@@ -134,7 +134,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         const Text(
                           'Nombre',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -151,7 +151,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         const Text(
                           'Correo',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -159,7 +159,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         Text(
                           widget.delivery.email,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             color: Colors.black87,
                           ),
                         ),
@@ -186,7 +186,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         const Text(
                           'Nueva contraseña',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -214,7 +214,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             child: Text(
                               _guardando ? 'GUARDANDO...' : 'GUARDAR CAMBIOS',
                               style: const TextStyle(
-                                fontSize: 14,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -234,7 +234,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             child: const Text(
                               'CERRAR SESIÓN',
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.red,
                               ),

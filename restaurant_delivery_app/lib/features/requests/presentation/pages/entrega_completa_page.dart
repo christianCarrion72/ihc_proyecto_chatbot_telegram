@@ -85,8 +85,9 @@ class _EntregaCompletaPageState extends State<EntregaCompletaPage> {
                           'ENTREGA COMPLETA?',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
+                            letterSpacing: 1.4,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -94,7 +95,7 @@ class _EntregaCompletaPageState extends State<EntregaCompletaPage> {
                           'Pedido ${_codigoPedido()} a ${widget.pedido.nombreUsuario}',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
                         ),

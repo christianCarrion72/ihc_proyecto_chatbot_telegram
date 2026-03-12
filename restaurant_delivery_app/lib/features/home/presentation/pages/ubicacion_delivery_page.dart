@@ -148,9 +148,9 @@ class _UbicacionDeliveryPageState extends State<UbicacionDeliveryPage> {
                 'MODIFICAR UBICACIÓN',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
+                  letterSpacing: 1.4,
                 ),
               ),
               const SizedBox(height: 16),
@@ -217,7 +217,7 @@ class _UbicacionDeliveryPageState extends State<UbicacionDeliveryPage> {
                                     _selectedPosition == null
                                         ? 'Selecciona un punto en el mapa'
                                         : 'Ubicación seleccionada: ${_selectedPosition!.latitude.toStringAsFixed(5)}, ${_selectedPosition!.longitude.toStringAsFixed(5)}',
-                                    style: const TextStyle(fontSize: 12),
+                                    style: const TextStyle(fontSize: 14),
                                   ),
                                   const SizedBox(height: 12),
                                   SizedBox(
@@ -238,7 +238,7 @@ class _UbicacionDeliveryPageState extends State<UbicacionDeliveryPage> {
                                             ? 'GUARDANDO...'
                                             : 'CAMBIAR UBICACIÓN',
                                         style: const TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -259,4 +259,3 @@ class _UbicacionDeliveryPageState extends State<UbicacionDeliveryPage> {
     );
   }
 }
-

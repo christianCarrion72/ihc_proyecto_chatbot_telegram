@@ -167,7 +167,7 @@ class _ViajeIniciadoPageState extends State<ViajeIniciadoPage> {
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -182,7 +182,7 @@ class _ViajeIniciadoPageState extends State<ViajeIniciadoPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
                         RouteMap(destinoCoords: widget.pedido.ubicacionEntrega),
                         const SizedBox(height: 8),
                         Row(
@@ -204,11 +204,11 @@ class _ViajeIniciadoPageState extends State<ViajeIniciadoPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
                         const Text(
                           'Dirección de Entrega',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -216,21 +216,21 @@ class _ViajeIniciadoPageState extends State<ViajeIniciadoPage> {
                         Text(
                           widget.pedido.direccionEntrega ??
                               widget.pedido.ubicacionEntrega,
-                          style: const TextStyle(fontSize: 12),
+                          style: const TextStyle(fontSize: 14),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                         Text(
                           'Cliente: ${widget.pedido.nombreUsuario}',
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                         const Text(
                           'Platos:',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -249,7 +249,7 @@ class _ViajeIniciadoPageState extends State<ViajeIniciadoPage> {
                               if (snapshot.hasError) {
                                 return const Text(
                                   'No se pudieron cargar los detalles',
-                                  style: TextStyle(fontSize: 12),
+                                  style: TextStyle(fontSize: 14),
                                 );
                               }
 
@@ -258,7 +258,7 @@ class _ViajeIniciadoPageState extends State<ViajeIniciadoPage> {
                               if (detalles.isEmpty) {
                                 return const Text(
                                   'Este pedido no tiene detalles',
-                                  style: TextStyle(fontSize: 12),
+                                  style: TextStyle(fontSize: 14),
                                 );
                               }
 
@@ -276,7 +276,7 @@ class _ViajeIniciadoPageState extends State<ViajeIniciadoPage> {
                                     ),
                                     child: Text(
                                       '${d.cantidad} x ${d.nombrePlato}',
-                                      style: const TextStyle(fontSize: 12),
+                                      style: const TextStyle(fontSize: 14),
                                     ),
                                   );
                                 },
@@ -298,7 +298,7 @@ class _ViajeIniciadoPageState extends State<ViajeIniciadoPage> {
                             child: const Text(
                               'NAVEGAR CON GOOGLE MAPS',
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -318,7 +318,7 @@ class _ViajeIniciadoPageState extends State<ViajeIniciadoPage> {
                             child: const Text(
                               'LLEGUÉ',
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

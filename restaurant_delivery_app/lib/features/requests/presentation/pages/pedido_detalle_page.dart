@@ -87,11 +87,12 @@ class _PedidoDetallePageState extends State<PedidoDetallePage> {
                 'DETALLES DEL PEDIDO',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
+                  letterSpacing: 1.4,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Expanded(
                 child: Container(
                   width: double.infinity,
@@ -100,7 +101,7 @@ class _PedidoDetallePageState extends State<PedidoDetallePage> {
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -109,15 +110,15 @@ class _PedidoDetallePageState extends State<PedidoDetallePage> {
                           children: [
                             const Icon(
                               Icons.fastfood,
-                              size: 40,
+                              size: 48,
                               color: Colors.orange,
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 16),
                             Expanded(
                               child: Text(
                                 'Pedido ${_codigoPedido()}',
                                 style: const TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -126,11 +127,11 @@ class _PedidoDetallePageState extends State<PedidoDetallePage> {
                         ),
                         const SizedBox(height: 16),
                         RouteMap(destinoCoords: widget.pedido.ubicacionEntrega),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
                         const Text(
                           'Dirección de Entrega',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -138,21 +139,21 @@ class _PedidoDetallePageState extends State<PedidoDetallePage> {
                         Text(
                           widget.pedido.direccionEntrega ??
                               widget.pedido.ubicacionEntrega,
-                          style: const TextStyle(fontSize: 12),
+                          style: const TextStyle(fontSize: 14),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                         Text(
                           'Cliente: ${widget.pedido.nombreUsuario}',
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                         const Text(
                           'Platos:',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -171,7 +172,7 @@ class _PedidoDetallePageState extends State<PedidoDetallePage> {
                               if (snapshot.hasError) {
                                 return const Text(
                                   'No se pudieron cargar los detalles',
-                                  style: TextStyle(fontSize: 12),
+                                  style: TextStyle(fontSize: 14),
                                 );
                               }
 
@@ -180,7 +181,7 @@ class _PedidoDetallePageState extends State<PedidoDetallePage> {
                               if (detalles.isEmpty) {
                                 return const Text(
                                   'Este pedido no tiene detalles',
-                                  style: TextStyle(fontSize: 12),
+                                  style: TextStyle(fontSize: 14),
                                 );
                               }
 
@@ -198,7 +199,7 @@ class _PedidoDetallePageState extends State<PedidoDetallePage> {
                                     ),
                                     child: Text(
                                       '${d.cantidad} x ${d.nombrePlato}',
-                                      style: const TextStyle(fontSize: 12),
+                                      style: const TextStyle(fontSize: 14),
                                     ),
                                   );
                                 },
