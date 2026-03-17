@@ -5,8 +5,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../environments/enviroment';
+import { ApiService } from './services/api.service';
 
 declare const L: any;
 
@@ -121,8 +120,8 @@ export class MapaUbicacionComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private api: ApiService
   ) {}
 
   ngAfterViewInit(): void {
@@ -199,17 +198,10 @@ export class MapaUbicacionComponent implements AfterViewInit, OnDestroy {
     const ubicacion_entrega = `${latlng.lat},${latlng.lng}`;
 
     this.cargando = true;
-
-    const tarifaUrl = `${environment.backendUrl}/deliveries/calcular-tarifa/${encodeURIComponent(
-      ubicacion_entrega
-    )}`;
-
-    this.http.get<{ tarifa: number }>(tarifaUrl).subscribe({
+    this.api.calcularTarifaDelivery(ubicacion_entrega).subscribe({
       next: (tarifaResp) => {
         const tarifa = tarifaResp.tarifa;
-        const masCercanoUrl = `${environment.backendUrl}/deliveries/mas-cercano`;
-
-        this.http.get<{ id: number }>(masCercanoUrl).subscribe({
+        this.api.getDeliveryMasCercano().subscribe({
           next: (delivery) => {
             this.cargando = false;
             this.router.navigate(['/'], {

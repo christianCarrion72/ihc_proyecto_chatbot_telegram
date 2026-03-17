@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../environments/enviroment';
 import {
   Categoria,
   Plato,
@@ -10,6 +8,7 @@ import {
   PedidoCompletoPayload,
   PedidoResponse,
 } from './interface/pedidos.interface';
+import { ApiService } from './services/api.service';
 import { retry } from 'rxjs';
 @Component({
   selector: 'app-root',
@@ -42,8 +41,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private api: ApiService
   ) {}
 
   ngOnInit(): void {
@@ -226,26 +225,24 @@ export class AppComponent implements OnInit {
 
     this.cargandoPedido = true;
 
-    this.http
-      .post<PedidoResponse>(`${environment.backendUrl}/pedidos/completo`, payload)
-      .subscribe({
-        next: (pedido) => {
-          this.cargandoPedido = false;
-          this.ultimoTotalPedido = pedido.total;
-          try {
-            window.localStorage.removeItem('cantidadesDraft');
-          } catch (e) {
-            console.error('Error limpiando cantidadesDraft', e);
-          }
-          this.router.navigate(['/verificacion'], {
-            queryParamsHandling: 'preserve',
-          });
-        },
-        error: (err) => {
-          this.cargandoPedido = false;
-          console.error('Error creando pedido completo', err);
-        },
-      });
+    this.api.crearPedidoCompleto(payload).subscribe({
+      next: (pedido) => {
+        this.cargandoPedido = false;
+        this.ultimoTotalPedido = pedido.total;
+        try {
+          window.localStorage.removeItem('cantidadesDraft');
+        } catch (e) {
+          console.error('Error limpiando cantidadesDraft', e);
+        }
+        this.router.navigate(['/verificacion'], {
+          queryParamsHandling: 'preserve',
+        });
+      },
+      error: (err) => {
+        this.cargandoPedido = false;
+        console.error('Error creando pedido completo', err);
+      },
+    });
   }
 
   seleccionarCategoria(id: number | null): void {
@@ -261,8 +258,8 @@ export class AppComponent implements OnInit {
   private loadPlatos(): void {
     this.loadingPlatos = true;
     this.errorPlatos = '';
-    this.http
-      .get<Plato[]>(`${environment.backendUrl}/platos/`)
+    this.api
+      .getPlatos()
       .pipe(retry(2))
       .subscribe({
         next: (data) => {
@@ -280,8 +277,8 @@ export class AppComponent implements OnInit {
   private loadCategorias(): void {
     this.loadingCategorias = true;
     this.errorCategorias = '';
-    this.http
-      .get<Categoria[]>(`${environment.backendUrl}/categorias/`)
+    this.api
+      .getCategorias()
       .pipe(retry(2))
       .subscribe({
         next: (data) => {
